@@ -1,0 +1,8 @@
+﻿java.exe : Error: Could not find or load main class .awt.headless=false
+At line:1 char:293
++ ... XITCODE } ; & 'C:\Program Files\Java\jdk-25\bin\java.exe' -Djava.awt. ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Could no....headless=false:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Caused by: java.lang.ClassNotFoundException: /awt/headless=false
