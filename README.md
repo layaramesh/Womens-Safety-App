@@ -134,6 +134,16 @@ This is a **demonstration application**. In this version:
 
 ---
 
+## Limitations & Areas to Improve
+
+- Azure Communications Services requires publically accessible webhook endpoints. During development, this project uses a secure tunneling service (example: ngrok) to expose a local Node.js server. In a production setting, the backend would be deployed to Azure App Service.
+
+- Desktop vs. Mobile: For real world safety, mobile is a natural form factor. For now, we are using desktop because it's easier to debug.
+
+- Security & Privacy: For a real deployment, we would need encryption, secure storage of contacts, clear data retention policies-- but for now, we are ignoring such factors in our prototype.
+
+---
+
 ## 💡 Contributing
 
 This is a safety-focused project. If you have ideas to make it better, feel free to:
