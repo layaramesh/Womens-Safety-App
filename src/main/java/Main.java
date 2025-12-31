@@ -4,15 +4,31 @@ import java.awt.event.*;
 import java.net.URI;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
+
+import com.azure.communication.callautomation.CallAutomationClient;
+import com.azure.communication.callautomation.CallAutomationClientBuilder;
+import com.azure.communication.callautomation.models.CallInvite;
+import com.azure.communication.callautomation.models.CreateCallResult;
+import com.azure.communication.callautomation.models.TextSource;
+import com.azure.communication.common.PhoneNumberIdentifier;
 
 public class Main {
+    private static CallAutomationClient callClient;
+    private static String azurePhoneNumber;
+    private static String callbackUri;
+    private static boolean azureEnabled = false;
     private static final String[] QUOTES = {"You can do it!", "Keep going!"};
     private static int index = 0;
     private static final int DELAY_MS = 5_000; // 5 seconds for testing (change to 600_000 for 10 minutes)
 
     public static void main(String[] args) {
+        // Initialize Azure Communication Services
+        initializeAzure();
+        
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Women's Safety & Mental Health");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -316,8 +332,40 @@ public class Main {
         });
     }
 
-    // Helper method to make phone calls (demo implementation; integrate with Azure Communication Services for real calls)
+    // Initialize Azure Communication Services
+    private static void initializeAzure() {
+        try (InputStream input = Main.class.getClassLoader().getResourceAsStream("azure-config.properties")) {
+            if (input == null) {
+                System.out.println("Azure config not found - running in demo mode");
+                return;
+            }
+
+            Properties prop = new Properties();
+            prop.load(input);
+
+            String connectionString = prop.getProperty("azure.connectionString");
+            azurePhoneNumber = prop.getProperty("azure.phoneNumber");
+            callbackUri = prop.getProperty("azure.callbackUri");
+            azureEnabled = Boolean.parseBoolean(prop.getProperty("azure.enabled", "false"));
+
+            if (azureEnabled && connectionString != null && !connectionString.isEmpty()) {
+                callClient = new CallAutomationClientBuilder()
+                    .connectionString(connectionString)
+                    .buildClient();
+                System.out.println("Azure Phone Calling enabled!");
+                System.out.println("Callback URI: " + callbackUri);
+            } else {
+                System.out.println("Azure disabled or not configured - running in demo mode");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to initialize Azure: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Helper method to make phone calls using Azure Communication Services
     private static void makeCall(String phoneNumber, String message, JFrame frame) {
+        // Log all calls
         try (FileWriter fw = new FileWriter("calls_made.log", true)) {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss"));
             String logEntry = String.format("%s | To: %s | Message: %s\n", timestamp, phoneNumber, message);
@@ -325,8 +373,87 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[CALL] To: " + phoneNumber + " | Message: " + message);
-        // TODO: Integrate with Azure Communication Services API for real phone calls
-        // For now, calls are logged to calls_made.log file as a demo
+
+        if (azureEnabled && callClient != null) {
+            // Make real Azure call
+            makeCallViaAzure(phoneNumber, message, frame);
+        } else {
+            // Demo mode
+            makeCallDemo(phoneNumber, message, frame);
+        }
+    }
+
+    // Make actual phone call via Azure Communication Services
+    private static void makeCallViaAzure(String phoneNumber, String message, JFrame frame) {
+        try {
+            if (callbackUri == null || callbackUri.isEmpty()) {
+                System.err.println("[AZURE CALL ERROR] Callback URI not configured!");
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Callback URI not configured.\nPlease set azure.callbackUri in config and restart.",
+                        "Configuration Error", JOptionPane.ERROR_MESSAGE);
+                });
+                return;
+            }
+            
+            PhoneNumberIdentifier caller = new PhoneNumberIdentifier(azurePhoneNumber);
+            PhoneNumberIdentifier target = new PhoneNumberIdentifier(phoneNumber);
+            
+            CallInvite callInvite = new CallInvite(target, caller);
+            
+            System.out.println("[AZURE CALL] Initiating call to: " + phoneNumber);
+            System.out.println("[AZURE CALL] From: " + azurePhoneNumber);
+            System.out.println("[AZURE CALL] Callback URI: " + callbackUri);
+            System.out.println("[AZURE CALL] Message: " + message);
+            
+            // Make the call - createCall takes CallInvite and callback URI directly
+            CreateCallResult callResult = callClient.createCall(callInvite, callbackUri);
+            
+            System.out.println("[AZURE CALL] Call created successfully!");
+            System.out.println("[AZURE CALL] Call Connection ID: " + callResult.getCallConnectionProperties().getCallConnectionId());
+            
+            // Once call is connected, play the message as text-to-speech
+            // This happens after the call connects (check webhook for CallConnected event)
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000); // Wait for call to connect
+                    
+                    TextSource textSource = new TextSource()
+                        .setText(message)
+                        .setVoiceName("en-US-JennyNeural"); // Azure Neural TTS voice
+                    
+                    // Play the message to all participants
+                    callResult.getCallConnection().getCallMedia().playToAll(textSource);
+                    
+                    System.out.println("[AZURE CALL] Playing message via TTS");
+                } catch (Exception e) {
+                    System.err.println("[AZURE CALL] Error playing message: " + e.getMessage());
+                }
+            }).start();
+            
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(frame, 
+                    "Call initiated successfully to " + phoneNumber + "\n" +
+                    "The recipient will receive a call with your message.\n" +
+                    "Check the callback server for call events.",
+                    "Call In Progress", JOptionPane.INFORMATION_MESSAGE);
+            });
+            
+        } catch (Exception e) {
+            System.err.println("[AZURE CALL ERROR] " + e.getMessage());
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(frame, 
+                    "Failed to make Azure call: " + e.getMessage(),
+                    "Call Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }
+
+    // Demo mode - just log the call
+    private static void makeCallDemo(String phoneNumber, String message, JFrame frame) {
+        System.out.println("[DEMO CALL] To: " + phoneNumber + " | Message: " + message);
+        System.out.println("[DEMO MODE] Call logged to calls_made.log");
     }
 }
+

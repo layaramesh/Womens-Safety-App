@@ -1,0 +1,48 @@
+# Azure Configuration (contains sensitive credentials)
+azure-config.properties
+src/main/resources/azure-config.properties
+
+# Log files
+*.log
+calls_made.log
+shared_locations.log
+sms_sent.log
+
+# Node.js / Webhook Server
+callback-server/node_modules/
+node_modules/
+package-lock.json
+!callback-server/package-lock.json
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,20 @@
+# Azure Communication Services Configuration
+# Get these values from your Azure portal
+
+# Connection string from Azure Communication Services resource
+# Found in: Portal > Your Resource > Keys
+azure.connectionString=YOUR_CONNECTION_STRING_HERE
+
+# Your Azure phone number (the one you purchased)
+# Found in: Portal > Your Resource > Phone Numbers
+# Format: +1234567890
+azure.phoneNumber=YOUR_PHONE_NUMBER_HERE
+
+# Callback URI for Azure Call Automation webhooks
+# Run callback server and ngrok, then update with your ngrok URL
+# Note: Use the base URL without /api/callbacks - Azure appends the path
+# Example: https://abc123.ngrok-free.dev
+azure.callbackUri=YOUR_NGROK_URL_HERE
+
+# Optional: Enable/disable Azure calling
+azure.enabled=true

@@ -1,13 +1,13 @@
 # 🛡️ Women's Safety & Mental Health App
 
-> **Empowering safety through technology** — A Java-based application designed to help women feel safer with real-time location sharing, emergency SOS features, and mental health resources.
+> **Empowering safety through technology** — A Java-based application with real-time location sharing, emergency phone calls via Azure Communication Services, and mental health resources.
 
 ---
 
 ## ✨ Features
 
-### 📍 **Live Location Sharing**
-Share your real-time location with trusted contacts for a specified duration. Perfect for:
+### 📞 **Live Phone Calling with Location Sharing**
+Share your real-time location with trusted contacts via automated phone calls. Perfect for:
 - Walking home alone at night
 - First dates or meeting new people
 - Solo travel adventures
@@ -16,14 +16,16 @@ Share your real-time location with trusted contacts for a specified duration. Pe
 **How it works:**
 - Enter your name and trusted contacts (phone numbers)
 - Set a timeout duration (supports fractional minutes like 0.5 for quick tests!)
-- Start sharing — contacts receive an Phone Call
+- Start sharing — contacts receive a **real phone call** with your message
 - Location updates are logged every 10 seconds
 - Auto-stops after your specified timeout
 
+**Powered by Azure Communication Services** for real phone calls with text-to-speech message delivery.
+
 ### 🚨 **Emergency SOS**
 One-tap emergency alert system that can:
-- Trigger instant notifications to your emergency contacts
-- Send your current location (in production version)
+- Trigger instant phone calls to your emergency contacts
+- Send your current location via automated message
 - Provide quick access to help when you need it most
 
 ### 💚 **Mental Health Resources**
@@ -40,14 +42,32 @@ Rotating inspirational quotes to keep you motivated and positive throughout your
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Java JDK 8 or later** (tested with JDK 25)
+- **Java JDK 17 or later** (tested with JDK 25)
+- **Maven 3.6+**
+- **Node.js 16+** (for webhook server)
+- **Azure Communication Services account** (for real phone calls)
 - Windows, macOS, or Linux
 
-### Installation & Running
+### Quick Start
 
-#### Option 1: Quick Start (Windows with JDK 25)
-```powershell
-# Navigate to project directory
+#### 1. Clone and Build
+```bash
+git clone https://github.com/YOUR_USERNAME/Womens-Safety-App.git
+cd Womens-Safety-App
+mvn package
+```
+
+#### 2. Configure Azure (Optional - for real calls)
+If you want real phone calls instead of demo mode:
+
+1. Create an Azure Communication Services resource
+2. Copy `azure-config.properties.example` to `src/main/resources/azure-config.properties`
+3. Fill in your Azure credentials
+4. See [WEBHOOK-SETUP.md](WEBHOOK-SETUP.md) for webhook configuration
+
+#### 3. Run the Application
+```bash
+java -jar target/womens-safety-app-1.0.0.jar
 cd Womens-Safety-App
 
 # Compile and run in one command
