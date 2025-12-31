@@ -51,7 +51,7 @@ public class Main {
 
             JTextField nameField = new JTextField(20);
             nameField.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            nameField.setToolTipText("Enter your name for SMS messages");
+            nameField.setToolTipText("Enter your name for phone calls");
             gbc.gridx = 1;
             gbc.gridy = 1;
             gbc.gridwidth = 1;
@@ -170,14 +170,14 @@ public class Main {
                     }
                 }
 
-                // Show confirmation dialog with message preview
-                String smsMessage = name + " has shared their location with you for " + minutes + " minutes.";
+                // Show confirmation dialog with call preview
+                String callMessage = name + " has shared their location with you for " + minutes + " minutes.";
                 String[] contactList = contacts.split(",");
-                StringBuilder previewMessage = new StringBuilder("The following SMS will be sent:\n\n");
+                StringBuilder previewMessage = new StringBuilder("The following phone calls will be made:\n\n");
                 for (String contact : contactList) {
                     previewMessage.append("To: ").append(contact.trim()).append("\n");
                 }
-                previewMessage.append("\nMessage:\n\"").append(smsMessage).append("\"");
+                previewMessage.append("\nMessage:\n\"").append(callMessage).append("\"");
 
                 int confirm = JOptionPane.showConfirmDialog(frame, previewMessage.toString(), 
                     "Confirm Location Sharing", JOptionPane.YES_NO_OPTION);
@@ -191,10 +191,10 @@ public class Main {
                 shareStatus.setText("Sharing (timeout in " + minutes + " min)...");
                 shareStatus.setForeground(new Color(0, 100, 0));
 
-                // Send SMS to contacts
+                // Make phone calls to contacts
                 for (String contact : contactList) {
                     String cleanContact = contact.trim();
-                    sendSMS(cleanContact, smsMessage, frame);
+                    makeCall(cleanContact, callMessage, frame);
                 }
 
                 // Timer to simulate periodic location updates
@@ -316,17 +316,17 @@ public class Main {
         });
     }
 
-    // Helper method to send SMS (demo implementation; integrate with Twilio for real SMS)
-    private static void sendSMS(String phoneNumber, String message, JFrame frame) {
-        try (FileWriter fw = new FileWriter("sms_sent.log", true)) {
+    // Helper method to make phone calls (demo implementation; integrate with Azure Communication Services for real calls)
+    private static void makeCall(String phoneNumber, String message, JFrame frame) {
+        try (FileWriter fw = new FileWriter("calls_made.log", true)) {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss"));
             String logEntry = String.format("%s | To: %s | Message: %s\n", timestamp, phoneNumber, message);
             fw.write(logEntry);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[SMS] To: " + phoneNumber + " | Message: " + message);
-        // TODO: Integrate with Twilio API for real SMS sending
-        // For now, SMS is logged to sms_sent.log file as a demo
+        System.out.println("[CALL] To: " + phoneNumber + " | Message: " + message);
+        // TODO: Integrate with Azure Communication Services API for real phone calls
+        // For now, calls are logged to calls_made.log file as a demo
     }
 }

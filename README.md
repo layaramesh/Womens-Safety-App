@@ -16,7 +16,7 @@ Share your real-time location with trusted contacts for a specified duration. Pe
 **How it works:**
 - Enter your name and trusted contacts (phone numbers)
 - Set a timeout duration (supports fractional minutes like 0.5 for quick tests!)
-- Start sharing — contacts receive an SMS notification
+- Start sharing — contacts receive an Phone Call
 - Location updates are logged every 10 seconds
 - Auto-stops after your specified timeout
 
@@ -85,7 +85,7 @@ java Main
 
 ### Demo Version
 This is a **demonstration application**. In this version:
-- SMS messages are logged to `sms_sent.log` instead of actually being sent
+- Phone calls are logged to `calls_made.log` instead of actually being sent
 - Location updates are logged to `shared_locations.log`
 - No actual data is transmitted
 
